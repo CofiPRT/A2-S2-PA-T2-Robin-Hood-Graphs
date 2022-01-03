@@ -1,0 +1,21 @@
+# Darius-Florentin Neatu <neatudarius@gmail.com>
+# Copyright 2018
+
+# ignorati
+# Makefile intern folosit de checker
+
+all: build_verif
+
+build_verif: verif verif_double verif_bonus
+
+verif: _utils/verif.cpp
+	g++ -std=c++11 -Wall -Wextra -lm -O3 ${ONLINE_JUDGE} _utils/verif.cpp -o verif
+
+verif_double: _utils/verif_double.cpp
+	g++ -std=c++11 -Wall -Wextra -lm -O3 ${ONLINE_JUDGE} _utils/verif_double.cpp -o verif_double
+
+verif_bonus: _utils/verif_bonus.cpp
+	g++ -std=c++11 -Wall -Wextra -lm -O3 ${ONLINE_JUDGE} _utils/verif_bonus.cpp -o verif_bonus
+
+clean:
+	rm -f verif verif_double verif_bonus

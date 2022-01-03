@@ -1,0 +1,251 @@
+------ PROIECTAREA ALGORITMILOR ------
+--- TEMA 2 - ROBIN HOOD AND GRAPHS ---
+
+     _ __    ,---.      
+  .-`.' ,`..--.'  \     
+ /==/, -   \==\-/\ \    
+|==| _ .=. /==/-|_\ |   
+|==| , '=',\==\,   - \  
+|==|-  '..'/==/ -   ,|  
+|==|,  |  /==/-  /\ - \ 
+/==/ - |  \==\ _.\=\.-' 
+`--`---'   `--`         
+
+Cuprins:
+	1. Problema 1 "Save Robin Hood".....................Linia  26
+	2. Problema 2 "Robin Hood stealing for the poor"....Linia  86
+	3. Problema 3 "Fooling the guards"..................Linia 142
+	4. Bonus "Robin Hood pe Lac"........................Linia 202
+	5. Alte detalii.....................................Linia 252
+
+
+=== =============================== ===
+=== 1. Problema 1 "Save Robin Hood" ===
+=== =============================== ===
+
+	- Avand un anumit numar 'i' de orase blocate din permutarea aleasa, se
+	poate realiza o parcurgere DFS incepand de la Robin (nodul 1) pana cand
+	se intalneste un Oras (nod) in care se afla un Lord.
+
+	- Daca se intalneste un Lord, inseamna ca acesta poate ajunge la Robin
+	prin exact aceeasi cale prin care am traversat graful. Nu mai este necesar
+	sa continuam traversarea, ne intereseaza doar daca Robin este in pericol
+	sau nu.
+
+	- Daca s-a explorat tot graful si nu s-a intalnit niciul Lord, inseamna ca
+	Robin este in siguranta cu numarul 'i' de orase blocate.
+
+	- Daca Robin este in siguranta, se pune intrebarea daca exista un numar
+	mai mic de orase blocate 'i' in care el ramane in siguranta.
+
+	- Daca Robin NU este in siguranta, CLAR avem nevoie de un numar mai mare
+	'i' de orase blocate.
+
+	- Acest numar se cauta folosind cautare binara. Se alege mereu un numar
+	'i' de orase blocate egal cu (min + max)/2, unde 'min' si 'max' reprezinta
+	valorile extreme de orase blocate la un moment dat, care se actualizeaza
+	in functie de rezultatele cautarii binare.
+
+	* COMPLEXITATE TEMPORALA:
+		O(log(|V|) * (|V| + |E|))
+
+		- Se cauta numarul 'i' de orase blocate prin cautare binara. Acest
+		numar poate fi maximum N - 1, adica |V| - 1.
+			O(log(|V|))
+
+		- Pentru fiecare numar 'i' incercat, se realizeaza o parcurgere DFS
+			O(|V| + |E|)
+
+		* O(log(|V|)) * O(|V| + |E|) = O(log(|V|) * (|V| + |E|))
+
+	* COMPLEXITATE SPATIALA:
+		O(|V| + |E|)
+
+		- Lista de adiacenta
+			O(|V| + |E|)
+
+		- Array pentru nodurile la care se afla lorzi
+			O(|V|)
+
+		- Array pentru nodurile vizitate
+			O(|V|)
+
+		- Array pentru orasele ce pot fi blocate (maximum N - 1 = |V| - 1)
+			O(|V|)
+
+		- Alte variabile simple
+			O(1)
+
+		* O(|V| + |E|) + 3 * O(|V|) + O(1) = O(|V| + |E|)
+
+
+=== ============================================= ===
+=== Problema 2 "Robin Hood stealing for the poor" ===
+=== ============================================= ===
+	
+	- Problema este una simpla de single-source shortest path
+
+	- Avand in vedere ca exista si costuri negative, algoritmul ideal este
+	Bellman-Ford
+
+	- Sursa prezinta un Bellman-Ford modificat, implementand o coada ce retine
+	nodurile cu muchii ce pot fi relaxate
+
+	- Cand se extrage un nod din coada, daca muchia catre un nod adiacent 'v'
+	poate fi relaxata, adaugam nodul 'v' in coada
+
+	- Daca ramane goala coada, inseamna ca nu mai sunt relaxari posibile.
+	Astfel, algoritmul se termina mai devreme daca este cazul.
+
+	- Acest algoritm se mai numeste si SPFA, avand aceeasi complexitate ca
+	algoritmul Bellman-Ford
+
+	- Intrucat se garanteaza inexistenta ciclurilor de cost negativ, nu este
+	nevoie de aceasta verificare la introducerea nodurilor in coada (In cazul
+	existentei unui ciclu negativ, un nod se va reintroduce in coada la
+	infinit.
+
+	- Se combate prin numararea introducerilor nodului respectiv in coada. Daca
+	a fost introdus de mai mult de |V| ori, atunci exista un ciclu de cost
+	negativ).
+
+	* COMPLEXITATE TEMPORALA:
+		O(|V| * |E|)
+
+		- Initializare array-uri auxiliare
+			O(|V|)
+
+		- Algoritmul SPFA (aceeasi complexitate ca Bellman-Ford)
+			O(|V| * |E|)
+
+		* O(|V|) + O(|V| * |E|) = O(|V| * |E|)
+
+	* COMPLEXITATE SPATIALA
+		O(|V| + |E|)
+
+		- Lista de adiacenta
+			O(|V| + |E|)
+
+		- Array pentru distantele catre fiecare nod
+			O(|V|)
+
+		- Alte variabile simple
+			O(1)
+
+		* O(|V| + |E|) + O(|V|) + O(1) = O(|V| + |E|)
+
+
+=== =============================== ===
+=== Problema 3 "Fooling the guards" ===
+=== =============================== ===
+
+	- Aceasta problema este tot una de single-source shortest path.
+
+	- Diferenta importanta, insa, este ca nu se doreste minimizarea distantei
+	de la sursa la noduri, distanta initiala (de la sursa) fiind 0.
+
+	- Se porneste cu un anumit numar 'energie' de la sursa si se doreste
+	MAXIMIZAREA acestuia la fiecare nod, traversarea muchiilor prezentand o
+	pierdere procentuala a acesteia.
+
+	- Desi nu pot exista costuri negative (prin urmare, nici cicluri de cost
+	negativ), am ales sa implementez cu algoritmul Bellman-Ford. Am incercat
+	si cu Dijkstra si am esuat, cel mai probabil dintr-o eroare personala.
+
+	* Un aspect interesant: desi obiectivul este cu totul altul, daca se
+	pastreaza cel original de minimizare a distantei (a sumei costurilor)
+	trec toate testele mai putin 3.
+
+	- Nici la aceasta problema nu se pune problema existentei ciclurilor de
+	cost negativ
+
+	- De fiecare daca cand un cost se relaxeaza, inseamna ca se poate ajunge
+	la nodul destinatie cu o energie mai buna. In acest moment, se salveaza
+	parintele acestui nod, pentru a putea reprezenta calea propriu-zisa de la
+	sursa la destinatie.
+
+	- Din nou, algoritmul este Bellman-Ford modificat cu coada (SPFA)
+
+	* COMPLEXITATE TEMPORALA:
+		O(|V| * |E|)
+
+		- Initializare array-uri auxiliare
+			O(|V|)
+
+		- Algoritmul SPFA
+			O(|V| * |E|)
+
+		* O(|V|) + O(|V| * |E|) = O(|V| * |E|)
+
+	* COMPLEXITATE SPATIALA:
+		O(|V| + |E|)
+
+		- Lista de adiacenta
+			O(|V| + |E|)
+
+		- Array pentru distante (energia) catre fiecare nod
+			O(|V|)
+
+		- Array pentru parinti
+			O(|V|)
+
+		- Alte variabile simple
+			O(1)
+
+		* O(|V| + |E|) + 2 * O(|V|) + O(1) = O(|V| + |E|)
+
+
+=== ============================ ===
+=== 4. Bonus "Robin Hood pe Lac" ===
+=== ============================ ===
+
+	- Nu am reusit sa ma prind de implementarea corecta
+
+	- Am folosit o implementare in stil Instante de joc in care la un anumit
+	pas (intr-o instanta) se stiu coordonatele lui Robin, coordonatele
+	bustenilor si se pot genera toate mutarile posibile in acel pas.
+
+	- Aceasta, evident, nu este o solutie buna intrucat se observa mai jos
+	la complexitati
+
+	- Folosesc progressive deepening (iterative deepening). Acest lucru
+	combina convenienta de parcurgere BFS cu stocarea lui DFS.
+
+	- Daca la un anumit nivel s-a atins o solutie, iar toatele celelalte
+	instante de pe acelasi nivel prezinta un efort de energie mai mare decat
+	aceasta solutie, clar ele nu pot conduce la o solutie mai buna. Algoritmul
+	se opreste.
+
+	* COMPLEXITATE TEMPORALA
+		O(N^T)
+
+		- La orice pas, Robin poate executa una dintre actiunile H, N, S, E, V.
+		In ceea ce priveste J, un bustean se poate intersecta cu maximum restul
+		de n-1 busteni. Deci numarul mutarilor posibile la un pas este direct
+		proportional cu N. Acesta este branching factor-ul
+			O(N)
+
+		- Depth-ul este maximum T - timpul din enunt
+			O(T)
+
+		* O(N) ^ O(T) = O(N^T)
+
+	* COMPLEXITATE SPATIALA
+		O(N * T)
+
+		- Intrucat se foloseste DFS, numarul de instante salvate este depth-ul
+			O(T)
+
+		- La fiecare instanta, se salveaza coordonatele celor N busteni
+			O(N)
+
+		- Precum si alte variabile simple
+			O(1)
+
+		* O(T) * (O(N) + O(1)) = O(T * N)
+
+
+=== =============== ===
+=== 5. Alte detalii ===
+=== =============== ===
+	none
